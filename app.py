@@ -1,58 +1,89 @@
 import streamlit as st
+import base64
 
 # 1. CONFIGURATION DE LA PAGE
 st.set_page_config(page_title="Suivi Cantine - EPLE", page_icon="🥗", layout="centered")
 
-# 2. DESIGN : VRAIE PHOTO DE CANTINE ET COMPORTEMENT DES BLOCS
-st.markdown("""
+# 2. FONCTION POUR FORCER L'IMAGE DE FOND SANS BLOCAGE (BASE64)
+def ajouter_fond_cantine():
+    # Lien direct vers la photo de self/cantine moderne
+    url_image = "https://images.unsplash.com/photo-1568454537842-d933259bb258?q=80&w=1920"
+    
+    css = f"""
     <style>
-    /* Image de fond : Vrai self-service moderne */
-    .stApp {
-        background-image: url("https://images.unsplash.com/photo-1568454537842-d933259bb258?q=80&w=1920");
+    .stApp {{
+        background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)), url("{url_image}");
         background-size: cover;
         background-attachment: fixed;
         background-position: center;
-    }
+    }}
+    
+    /* Nettoyage complet des bulles et blocs parasites de Streamlit */
+    div.block-container {{
+        background-color: transparent !important;
+        padding-top: 2rem !important;
+    }}
 
-    /* Style du grand titre vert */
-    h1 {
+    /* Style du grand titre principal */
+    h1 {{
         color: #1E4620 !important;
         background-color: #FFFFFF !important;
-        padding: 15px;
-        border-radius: 10px;
-        text-align: center;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
+        padding: 18px !important;
+        border-radius: 12px !important;
+        text-align: center !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+        margin-bottom: 25px !important;
+    }}
 
-    /* Style du tableau blanc pour casser le fond */
-    .stTable, table {
+    /* Style du menu déroulant pour qu'il soit bien visible */
+    .stSelectbox div[data-baseweb="select"] {{
+        background-color: #FFFFFF !important;
+        border: 2px solid #1E4620 !important;
+        border-radius: 8px !important;
+    }}
+    
+    label {{
+        color: #FFFFFF !important;
+        background-color: #1E4620 !important;
+        padding: 4px 10px !important;
+        border-radius: 5px !important;
+        font-weight: bold !important;
+    }}
+
+    /* Style du tableau blanc de résultats */
+    .stTable, table {{
         background-color: #FFFFFF !important;
         color: #111111 !important;
         border: 3px solid #1E4620 !important;
-        border-radius: 8px;
-        width: 100%;
-    }
+        border-radius: 8px !important;
+        width: 100% !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+    }}
     
-    th {
+    th {{
         background-color: #1E4620 !important;
         color: white !important;
         font-weight: bold !important;
         font-size: 16px !important;
-    }
+    }}
     
-    td {
+    td {{
         font-weight: bold !important;
         color: #111111 !important;
         padding: 12px !important;
         font-size: 15px !important;
-    }
+    }}
     </style>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(css, unsafe_allow_html=True)
+
+# Activation du fond d'écran
+ajouter_fond_cantine()
 
 # 3. CONTENU DE L'APPLICATION
 st.title("🥗 Grand Suivi des Déchets - CDSG")
 
-# Base de données officielle
+# Base de données officielle des 21 établissements
 donnees_etablissements = {
     "COLLEGE J. GIONO": {"plastique": 12.4, "serviettes": 4.2, "alimentaire": 35.8, "fruits": 8.5, "pain": 14.0},
     "LYCEE DE L'ARC": {"plastique": 22.1, "serviettes": 9.5, "alimentaire": 64.0, "fruits": 15.2, "pain": 28.3},
@@ -75,17 +106,17 @@ donnees_etablissements = {
     "école curie": {"plastique": 7.5, "serviettes": 2.8, "alimentaire": 21.3, "fruits": 5.1, "pain": 8.9}
 }
 
-# Menu de choix déroulant
+# Sélection de l'établissement
 liste = list(donnees_etablissements.keys())
-choix = st.selectbox("🏫 Sélectionnez l'établissement à analyser :", liste)
+choix = st.selectbox("Sélectionnez l'établissement à analyser :", liste)
 
 # Calculs
 infos = donnees_etablissements[choix]
 total = infos["plastique"] + infos["serviettes"] + infos["alimentaire"] + infos["fruits"] + infos["pain"]
 
-st.markdown("---")
+st.write("")
 
-# Préparation des données du tableau
+# Préparation du tableau
 tableau = {
     "Poubelles de Tri": [
         "Emballages plastiques", 
@@ -105,10 +136,10 @@ tableau = {
     ]
 }
 
-# Affichage direct du tableau
+# Affichage du tableau
 st.table(tableau)
 
-st.markdown("---")
+st.write("")
 
-# Bouton Google Sheets
+# Bouton d'accès direct au fichier source
 st.link_button("📂 Ouvrir le tableau Google Sheets complet", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
