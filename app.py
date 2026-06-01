@@ -3,48 +3,42 @@ import streamlit as st
 # 1. CONFIGURATION DE LA PAGE
 st.set_page_config(page_title="Suivi Cantine - EPLE", page_icon="🥗", layout="centered")
 
-# 2. STYLE CSS POUR LE FOND ET LES TABLEAUX
+# 2. DESIGN : VRAIE PHOTO DE CANTINE ET COULEURS NETTES
 st.markdown("""
     <style>
-    /* Image de fond : Vraie cantine scolaire */
+    /* Arrière-plan : Un vrai self-service de cantine scolaire */
     .stApp {
-        background-image: url("https://images.unsplash.com/photo-1568454537842-d933259bb258?q=80&w=1920");
+        background-image: url("https://images.unsplash.com/photo-1574966739982-2b7849ec631c?q=80&w=1920");
         background-size: cover;
         background-attachment: fixed;
         background-position: center;
     }
 
-    /* Boîte blanche opaque pour que les textes ressortent parfaitement */
-    .main-box {
-        background-color: #FFFFFF !important;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        margin-bottom: 20px;
-        color: #111111 !important;
-    }
-
-    /* Style du grand titre */
+    /* Style des titres pour qu'ils soient lisibles sur l'image */
     h1 {
-        color: #1E4620 !important;
-        background-color: #FFFFFF;
+        color: #FFFFFF !important;
+        background-color: #1E4620;
         padding: 15px;
-        border-radius: 10px;
+        border-radius: 8px;
         text-align: center;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
     
-    h2 {
+    h3 {
         color: #1E4620 !important;
         font-weight: bold !important;
-        margin-top: 0px !important;
+        background-color: #FFFFFF;
+        padding: 8px;
+        border-radius: 5px;
+        display: inline-block;
     }
 
-    /* Style du tableau pour un contraste maximal */
+    /* Style du tableau blanc pur : aucun bug de transparence, contraste max */
     .stTable, table {
         background-color: #FFFFFF !important;
         color: #111111 !important;
-        border: 2px solid #1E4620 !important;
+        border: 3px solid #1E4620 !important;
+        border-radius: 8px;
         width: 100%;
     }
     
@@ -52,19 +46,22 @@ st.markdown("""
         background-color: #1E4620 !important;
         color: white !important;
         font-weight: bold !important;
+        font-size: 16px !important;
     }
     
     td {
-        font-weight: 600 !important;
-        padding: 10px !important;
+        font-weight: bold !important;
+        color: #111111 !important;
+        padding: 12px !important;
+        font-size: 15px !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. CONTENU DE L'APPLICATION
+# 3. CONTENU SANS BULLES VIDES (On utilise les fonctions Streamlit de base pour éviter les bugs)
 st.title("🥗 Grand Suivi des Déchets - CDSG")
 
-# Liste des données
+# Base de données
 donnees_etablissements = {
     "COLLEGE J. GIONO": {"plastique": 12.4, "serviettes": 4.2, "alimentaire": 35.8, "fruits": 8.5, "pain": 14.0},
     "LYCEE DE L'ARC": {"plastique": 22.1, "serviettes": 9.5, "alimentaire": 64.0, "fruits": 15.2, "pain": 28.3},
@@ -87,27 +84,25 @@ donnees_etablissements = {
     "école curie": {"plastique": 7.5, "serviettes": 2.8, "alimentaire": 21.3, "fruits": 5.1, "pain": 8.9}
 }
 
-# Bloc de sélection de l'établissement (sans bulle vide en dessous)
-st.markdown('<div class="main-box">', unsafe_allow_html=True)
-st.header("🏫 Sélection de l'établissement")
+# Menu de choix de l'établissement
+st.write("")
 liste = list(donnees_etablissements.keys())
-choix = st.selectbox("Choisissez un établissement dans la liste :", liste)
-st.markdown('</div>', unsafe_allow_html=True)
+choix = st.selectbox("🏫 Sélectionnez l'établissement à analyser :", liste)
 
-# Calculs
+# Calculs des totaux
 infos = donnees_etablissements[choix]
 total = infos["plastique"] + infos["serviettes"] + infos["alimentaire"] + infos["fruits"] + infos["pain"]
 
-# Bloc d'affichage du Tableau
-st.markdown('<div class="main-box">', unsafe_allow_html=True)
-st.header(f"📋 Résultats pour {choix}")
+# Affichage des résultats
+st.markdown("---")
+st. Mendoza = st.subheader(f"📋 Résultats officiels pour : {choix}")
 
 tableau = {
     "Poubelles de Tri": [
         "Emballages plastiques", 
-        "Serviettes en papier", 
-        "Déchets alimentaires",
-        "Fruits entamés",
+        "Les serviettes en papier", 
+        "Les déchets alimentaires",
+        "Les fruits entamés",
         "Le pain",
         "TOTAL GÉNÉRAL"
     ],
@@ -121,8 +116,10 @@ tableau = {
     ]
 }
 
+# Affichage du tableau
 st.table(tableau)
-st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("---")
 
 # Bouton d'accès au Google Sheets tout en bas
 st.link_button("📂 Ouvrir le tableau Google Sheets complet", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
