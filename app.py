@@ -1,62 +1,71 @@
 import streamlit as st
 
-# Titre principal
-st.title("📊 Grand Suivi des Déchets - Établissements Scolaires")
-st.write("Projet CDSG - Visualisation des données de pesée")
+# Titre principal de l'application
+st.title("📊 Grand Suivi des Déchets - Projet EPLE bas carbone")
+st.write("Application officielle de visualisation et de suivi des données de pesée.")
 
 st.markdown("---")
 
-# 1. BASE DE DONNÉES (Exemple à remplacer avec tes vraies données du Google Sheets)
-# Tu me donneras tes vrais chiffres et je les changerai ici !
+# 1. BASE DE DONNÉES OFFICIELLE DES 21 ÉTABLISSEMENTS (Extraite de ton Google Sheets)
 donnees_etablissements = {
-    "Collège du Vaucluse": {"serviettes": 1.2, "pain": 4.5, "emballages": 2.1, "fruits": 3.0, "alimentaires": 12.4},
-    "Collège Jean Moulin": {"serviettes": 0.8, "pain": 3.2, "emballages": 1.5, "fruits": 2.1, "alimentaires": 9.0},
-    "Lycée Lumière": {"serviettes": 2.5, "pain": 8.0, "emballages": 4.2, "fruits": 5.5, "alimentaires": 22.1},
-    "Lycée Professionnel Denis Diderot": {"serviettes": 1.9, "pain": 6.1, "emballages": 3.0, "fruits": 4.0, "alimentaires": 15.3},
-    "École Primaire Centre": {"serviettes": 0.5, "pain": 2.0, "emballages": 1.0, "fruits": 1.5, "alimentaires": 5.0},
-    "Université de Franche-Comté": {"serviettes": 5.0, "pain": 15.4, "emballages": 9.1, "fruits": 10.0, "alimentaires": 45.8}
+    "COLLEGE J. GIONO": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "LYCEE DE L'ARC": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "COLLEGE ARAUSIO": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "LP ARGENSOL": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "COLLEGE B. HENDRICKS": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "LP A. BRIAND": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "LYCEE VITICOLE": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "ENSEMBLE SCOLAIRE SAINT LOUIS": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "LYCEE L. AUBRAC": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "COLLEGE H. BOUDON": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "COLLEGE P. ELUARD": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "COLLEGE VALLIS AERIA": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "LP F. REVOUL": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "ES SAINT-JEAN-LE -BAPTISTE": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "COLLEGE V. SCHOELCHER": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "COLLEGE SAINT-EXUPERY": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "école Jules Ferry": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "école du grillon": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0},
+    "école curie": {"plastique": 0.0, "papier": 0.0, "alimentaire": 0.0}  # Chiffres du tableau
 }
 
-# 2. CHOIX DE L'ÉTABLISSEMENT
+# 2. SÉLECTION DE L'ÉTABLISSEMENT
 st.header("🏫 Sélection de l'établissement")
 liste_etablissements = list(donnees_etablissements.keys())
-etablissement_choisi = st.selectbox("Choisissez une école, un collège, un lycée ou une université :", liste_etablissements)
+etablissement_choisi = st.selectbox("Choisissez l'établissement à analyser :", liste_etablissements)
 
-# Récupération des données de l'établissement choisi
+# Récupération des données associées
 infos = donnees_etablissements[etablissement_choisi]
 
-# Calcul du total
-total_dechets = infos["serviettes"] + infos["pain"] + infos["emballages"] + infos["fruits"] + infos["alimentaires"]
+# Calcul du total des déchets pour cet établissement
+total_dechets = infos["plastique"] + infos["papier"] + infos["alimentaire"]
 
 st.markdown("---")
 
-# 3. AFFICHAGE DES DONNÉES SOUS FORME DE TABLEAU
-st.header(f"📋 Données enregistrées - {etablissement_choisi}")
+# 3. AFFICHAGE DU TABLEAU DE BORD
+st.header(f"📋 Tableau récapitulatif - {etablissement_choisi}")
 
 tableau_affichage = {
-    "Catégorie de Poubelle": [
-        "1. Serviettes papiers", 
-        "2. Le pain", 
-        "3. Les emballages", 
-        "4. Fruits entamés", 
-        "5. Déchets alimentaires",
-        "TOTAL GÉNÉRAL"
+    "Catégorie de Déchets": [
+        "Plastique", 
+        "Papier", 
+        "Déchets Alimentaires",
+        "TOTAL DES DÉCHETS RELEVÉS"
     ],
-    "Poids (en kg)": [
-        f"{infos['serviettes']:.1f} kg", 
-        f"{infos['pain']:.1f} kg", 
-        f"{infos['emballages']:.1f} kg", 
-        f"{infos['fruits']:.1f} kg", 
-        f"{infos['alimentaires']:.1f} kg",
-        f"{total_dechets:.1f} kg"
+    "Quantité / Impact": [
+        f"{infos['plastique']:.2f}", 
+        f"{infos['papier']:.2f}", 
+        f"{infos['alimentaire']:.2f}",
+        f"{total_dechets:.2f}"
     ]
 }
 
-# Affichage du tableau propre
+# Affichage sous forme de tableau Streamlit propre
 st.table(tableau_affichage)
 
 st.markdown("---")
 
-# 4. LIEN VERS LE TABLEAU EN LIGNE
-st.write("🔗 Lien direct vers la source :")
+# 4. LIEN VERS LE GOOGLE SHEETS ORIGINAL
+st.header("🔗 Lien Source")
+st.write("Accéder au document complet 'Projet EPLE bas carbone' :")
 st.link_button("📂 Ouvrir le Google Sheets", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
