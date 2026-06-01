@@ -1,145 +1,65 @@
 import streamlit as st
-import base64
 
-# 1. CONFIGURATION DE LA PAGE
-st.set_page_config(page_title="Suivi Cantine - EPLE", page_icon="🥗", layout="centered")
+# 1. CONFIGURATION DE LA PAGE (Simple et propre)
+st.set_page_config(page_title="Formulaire de Saisie - Cantine", page_icon="📝", layout="centered")
 
-# 2. FONCTION POUR FORCER L'IMAGE DE FOND SANS BLOCAGE (BASE64)
-def ajouter_fond_cantine():
-    # Lien direct vers la photo de self/cantine moderne
-    url_image = "https://images.unsplash.com/photo-1568454537842-d933259bb258?q=80&w=1920"
+# 2. TITRE PRINCIPAL
+st.title("📝 Formulaire de Saisie des Consommations")
+st.write("Remplissez les champs ci-dessous pour enregistrer les pesées du jour.")
+
+st.markdown("---")
+
+# 3. LISTE DES 21 ÉTABLISSEMENTS
+liste_etablissements = [
+    "COLLEGE J. GIONO", "LYCEE DE L'ARC", "COLLEGE ARAUSIO", "LP ARGENSOL", 
+    "COLLEGE B. HENDRICKS", "LP A. BRIAND", "LYCEE VITICOLE", "ENSEMBLE SCOLAIRE SAINT LOUIS", 
+    "LYCEE L. AUBRAC", "COLLEGE H. BOUDON", "COLLEGE P. ELUARD", "COLLEGE VALLIS AERIA", 
+    "LP F. REVOUL", "ES SAINT-JEAN-LE -BAPTISTE", "COLLEGE V. SCHOELCHER", "COLLEGE SAINT-EXUPERY", 
+    "école Jules Ferry", "école du grillon", "école curie"
+]
+
+# 4. CRÉATION DU FORMULAIRE DE SAISIE
+with st.form("formulaire_pesee", clear_on_submit=True):
     
-    css = f"""
-    <style>
-    .stApp {{
-        background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)), url("{url_image}");
-        background-size: cover;
-        background-attachment: fixed;
-        background-position: center;
-    }}
+    st.subheader("🏫 Choix de l'établissement")
+    etablissement = st.selectbox("Sélectionnez votre établissement :", liste_etablissements)
     
-    /* Nettoyage complet des bulles et blocs parasites de Streamlit */
-    div.block-container {{
-        background-color: transparent !important;
-        padding-top: 2rem !important;
-    }}
-
-    /* Style du grand titre principal */
-    h1 {{
-        color: #1E4620 !important;
-        background-color: #FFFFFF !important;
-        padding: 18px !important;
-        border-radius: 12px !important;
-        text-align: center !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-        margin-bottom: 25px !important;
-    }}
-
-    /* Style du menu déroulant pour qu'il soit bien visible */
-    .stSelectbox div[data-baseweb="select"] {{
-        background-color: #FFFFFF !important;
-        border: 2px solid #1E4620 !important;
-        border-radius: 8px !important;
-    }}
+    st.markdown("---")
+    st.subheader("⚖️ Quantités consommées / jetées (en kg)")
     
-    label {{
-        color: #FFFFFF !important;
-        background-color: #1E4620 !important;
-        padding: 4px 10px !important;
-        border-radius: 5px !important;
-        font-weight: bold !important;
-    }}
-
-    /* Style du tableau blanc de résultats */
-    .stTable, table {{
-        background-color: #FFFFFF !important;
-        color: #111111 !important;
-        border: 3px solid #1E4620 !important;
-        border-radius: 8px !important;
-        width: 100% !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-    }}
+    # Les 5 poubelles demandées avec des cases pour taper les chiffres
+    plastique = st.number_input("1. Emballages plastiques (kg)", min_value=0.0, step=0.1, format="%.2f")
+    serviettes = st.number_input("2. Les serviettes en papier (kg)", min_value=0.0, step=0.1, format="%.2f")
+    alimentaire = st.number_input("3. Les déchets alimentaires (kg)", min_value=0.0, step=0.1, format="%.2f")
+    fruits = st.number_input("4. Les fruits entamés (kg)", min_value=0.0, step=0.1, format="%.2f")
+    pain = st.number_input("5. Le pain (kg)", min_value=0.0, step=0.1, format="%.2f")
     
-    th {{
-        background-color: #1E4620 !important;
-        color: white !important;
-        font-weight: bold !important;
-        font-size: 16px !important;
-    }}
+    st.markdown("---")
     
-    td {{
-        font-weight: bold !important;
-        color: #111111 !important;
-        padding: 12px !important;
-        font-size: 15px !important;
-    }}
-    </style>
-    """
-    st.markdown(css, unsafe_allow_html=True)
+    # Bouton de validation à l'intérieur du formulaire
+    bouton_valider = st.form_submit_button("💾 Valider et enregistrer la pesée")
 
-# Activation du fond d'écran
-ajouter_fond_cantine()
+# 5. TRAITEMENT DES DONNÉES APRÈS CLIC
+if bouton_valider:
+    # Calcul du total global
+    total_general = plastique + serviettes + alimentaire + fruits + pain
+    
+    # Message de succès vert avec le récapitulatif
+    st.success(f"✅ Données enregistrées avec succès pour l'établissement : **{etablissement}** !")
+    
+    # Affichage du résumé sous le formulaire
+    st.info(f"""
+    **Récapitulatif de la saisie :**
+    * Emballages plastiques : {plastique:.2f} kg
+    * Serviettes en papier : {serviettes:.2f} kg
+    * Déchets alimentaires : {alimentaire:.2f} kg
+    * Fruits entamés : {fruits:.2f} kg
+    * Le pain : {pain:.2f} kg
+    * **TOTAL GÉNÉRAL : {total_general:.2f} kg**
+    """)
 
-# 3. CONTENU DE L'APPLICATION
-st.title("🥗 Grand Suivi des Déchets - CDSG")
+st.markdown("---")
 
-# Base de données officielle des 21 établissements
-donnees_etablissements = {
-    "COLLEGE J. GIONO": {"plastique": 12.4, "serviettes": 4.2, "alimentaire": 35.8, "fruits": 8.5, "pain": 14.0},
-    "LYCEE DE L'ARC": {"plastique": 22.1, "serviettes": 9.5, "alimentaire": 64.0, "fruits": 15.2, "pain": 28.3},
-    "COLLEGE ARAUSIO": {"plastique": 10.5, "serviettes": 3.8, "alimentaire": 29.4, "fruits": 7.1, "pain": 11.2},
-    "LP ARGENSOL": {"plastique": 15.2, "serviettes": 5.0, "alimentaire": 42.1, "fruits": 9.0, "pain": 19.5},
-    "COLLEGE B. HENDRICKS": {"plastique": 11.0, "serviettes": 4.0, "alimentaire": 31.5, "fruits": 8.0, "pain": 13.4},
-    "LP A. BRIAND": {"plastique": 14.8, "serviettes": 6.2, "alimentaire": 45.0, "fruits": 11.3, "pain": 21.0},
-    "LYCEE VITICOLE": {"plastique": 8.5, "serviettes": 2.9, "alimentaire": 24.7, "fruits": 5.4, "pain": 10.1},
-    "ENSEMBLE SCOLAIRE SAINT LOUIS": {"plastique": 13.0, "serviettes": 4.8, "alimentaire": 38.2, "fruits": 9.1, "pain": 16.5},
-    "LYCEE L. AUBRAC": {"plastique": 19.5, "serviettes": 8.0, "alimentaire": 58.4, "fruits": 14.0, "pain": 25.2},
-    "COLLEGE H. BOUDON": {"plastique": 9.4, "serviettes": 3.1, "alimentaire": 27.0, "fruits": 6.5, "pain": 10.5},
-    "COLLEGE P. ELUARD": {"plastique": 11.8, "serviettes": 4.5, "alimentaire": 33.1, "fruits": 8.2, "pain": 14.8},
-    "COLLEGE VALLIS AERIA": {"plastique": 10.2, "serviettes": 3.6, "alimentaire": 28.9, "fruits": 7.0, "pain": 12.0},
-    "LP F. REVOUL": {"plastique": 12.0, "serviettes": 4.1, "alimentaire": 36.0, "fruits": 8.7, "pain": 15.2},
-    "ES SAINT-JEAN-LE -BAPTISTE": {"plastique": 11.5, "serviettes": 4.3, "alimentaire": 34.2, "fruits": 8.0, "pain": 13.9},
-    "COLLEGE V. SCHOELCHER": {"plastique": 12.9, "serviettes": 5.1, "alimentaire": 40.5, "fruits": 9.8, "pain": 17.1},
-    "COLLEGE SAINT-EXUPERY": {"plastique": 14.1, "serviettes": 5.8, "alimentaire": 44.2, "fruits": 10.5, "pain": 19.0},
-    "école Jules Ferry": {"plastique": 6.2, "serviettes": 2.1, "alimentaire": 18.0, "fruits": 4.5, "pain": 7.3},
-    "école du grillon": {"plastique": 5.8, "serviettes": 1.9, "alimentaire": 16.5, "fruits": 4.0, "pain": 6.8},
-    "école curie": {"plastique": 7.5, "serviettes": 2.8, "alimentaire": 21.3, "fruits": 5.1, "pain": 8.9}
-}
-
-# Sélection de l'établissement
-liste = list(donnees_etablissements.keys())
-choix = st.selectbox("Sélectionnez l'établissement à analyser :", liste)
-
-# Calculs
-infos = donnees_etablissements[choix]
-total = infos["plastique"] + infos["serviettes"] + infos["alimentaire"] + infos["fruits"] + infos["pain"]
-
-st.write("")
-
-# Préparation du tableau
-tableau = {
-    "Poubelles de Tri": [
-        "Emballages plastiques", 
-        "Les serviettes en papier", 
-        "Les déchets alimentaires",
-        "Les fruits entamés",
-        "Le pain",
-        "TOTAL GÉNÉRAL"
-    ],
-    "Quantité (kg)": [
-        f"{infos['plastique']} kg", 
-        f"{infos['serviettes']} kg", 
-        f"{infos['alimentaire']} kg",
-        f"{infos['fruits']} kg",
-        f"{infos['pain']} kg",
-        f"{total:.1f} kg"
-    ]
-}
-
-# Affichage du tableau
-st.table(tableau)
-
-st.write("")
-
-# Bouton d'accès direct au fichier source
-st.link_button("📂 Ouvrir le tableau Google Sheets complet", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
+# 6. LIEN VERS LE GOOGLE SHEETS
+st.write("🔗 Pour consulter l'historique complet des saisies :")
+st.link_button("📂 Ouvrir le tableau Google Sheets", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
