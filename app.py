@@ -3,37 +3,28 @@ import streamlit as st
 # 1. CONFIGURATION DE LA PAGE
 st.set_page_config(page_title="Suivi Cantine - EPLE", page_icon="🥗", layout="centered")
 
-# 2. DESIGN : VRAIE PHOTO DE CANTINE ET COULEURS NETTES
+# 2. DESIGN : VRAIE PHOTO DE CANTINE ET COMPORTEMENT DES BLOCS
 st.markdown("""
     <style>
-    /* Arrière-plan : Un vrai self-service de cantine scolaire */
+    /* Image de fond : Vrai self-service moderne */
     .stApp {
-        background-image: url("https://images.unsplash.com/photo-1574966739982-2b7849ec631c?q=80&w=1920");
+        background-image: url("https://images.unsplash.com/photo-1568454537842-d933259bb258?q=80&w=1920");
         background-size: cover;
         background-attachment: fixed;
         background-position: center;
     }
 
-    /* Style des titres pour qu'ils soient lisibles sur l'image */
+    /* Style du grand titre vert */
     h1 {
-        color: #FFFFFF !important;
-        background-color: #1E4620;
+        color: #1E4620 !important;
+        background-color: #FFFFFF !important;
         padding: 15px;
-        border-radius: 8px;
+        border-radius: 10px;
         text-align: center;
         box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-    
-    h3 {
-        color: #1E4620 !important;
-        font-weight: bold !important;
-        background-color: #FFFFFF;
-        padding: 8px;
-        border-radius: 5px;
-        display: inline-block;
-    }
 
-    /* Style du tableau blanc pur : aucun bug de transparence, contraste max */
+    /* Style du tableau blanc pour casser le fond */
     .stTable, table {
         background-color: #FFFFFF !important;
         color: #111111 !important;
@@ -58,10 +49,10 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. CONTENU SANS BULLES VIDES (On utilise les fonctions Streamlit de base pour éviter les bugs)
+# 3. CONTENU DE L'APPLICATION
 st.title("🥗 Grand Suivi des Déchets - CDSG")
 
-# Base de données
+# Base de données officielle
 donnees_etablissements = {
     "COLLEGE J. GIONO": {"plastique": 12.4, "serviettes": 4.2, "alimentaire": 35.8, "fruits": 8.5, "pain": 14.0},
     "LYCEE DE L'ARC": {"plastique": 22.1, "serviettes": 9.5, "alimentaire": 64.0, "fruits": 15.2, "pain": 28.3},
@@ -84,19 +75,17 @@ donnees_etablissements = {
     "école curie": {"plastique": 7.5, "serviettes": 2.8, "alimentaire": 21.3, "fruits": 5.1, "pain": 8.9}
 }
 
-# Menu de choix de l'établissement
-st.write("")
+# Menu de choix déroulant
 liste = list(donnees_etablissements.keys())
 choix = st.selectbox("🏫 Sélectionnez l'établissement à analyser :", liste)
 
-# Calculs des totaux
+# Calculs
 infos = donnees_etablissements[choix]
 total = infos["plastique"] + infos["serviettes"] + infos["alimentaire"] + infos["fruits"] + infos["pain"]
 
-# Affichage des résultats
 st.markdown("---")
-st. Mendoza = st.subheader(f"📋 Résultats officiels pour : {choix}")
 
+# Préparation des données du tableau
 tableau = {
     "Poubelles de Tri": [
         "Emballages plastiques", 
@@ -116,10 +105,10 @@ tableau = {
     ]
 }
 
-# Affichage du tableau
+# Affichage direct du tableau
 st.table(tableau)
 
 st.markdown("---")
 
-# Bouton d'accès au Google Sheets tout en bas
+# Bouton Google Sheets
 st.link_button("📂 Ouvrir le tableau Google Sheets complet", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
