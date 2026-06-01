@@ -19,19 +19,25 @@ liste_etablissements = [
     "école Jules Ferry", "école du grillon", "école curie"
 ]
 
-# 4. INITIALISATION DE LA MÉMOIRE DE SESSION (Le grand tableau global)
-# Si l'application vient de démarrer, on crée un tableau vide avec tous les établissements à 0
+# 4. RÉINITIALISATION ET INITIALISATION DU TABLEAU GLOBAL (Tout est remis à 0)
+# Cette structure crée un tableau propre et vierge avec des valeurs à 0.00
+donnees_initiales = {
+    "Établissement": liste_etablissements,
+    "Emballages plastiques (kg)": [0.0] * len(liste_etablissements),
+    "Serviettes en papier (kg)": [0.0] * len(liste_etablissements),
+    "Déchets alimentaires (kg)": [0.0] * len(liste_etablissements),
+    "Fruits entamés (kg)": [0.0] * len(liste_etablissements),
+    "Le pain (kg)": [0.0] * len(liste_etablissements),
+    "TOTAL (kg)": [0.0] * len(liste_etablissements)
+}
+
 if "df_global" not in st.session_state:
-    donnees_initiales = {
-        "Établissement": liste_etablissements,
-        "Emballages plastiques (kg)": [0.0] * len(liste_etablissements),
-        "Serviettes en papier (kg)": [0.0] * len(liste_etablissements),
-        "Déchets alimentaires (kg)": [0.0] * len(liste_etablissements),
-        "Fruits entamés (kg)": [0.0] * len(liste_etablissements),
-        "Le pain (kg)": [0.0] * len(liste_etablissements),
-        "TOTAL (kg)": [0.0] * len(liste_etablissements)
-    }
     st.session_state.df_global = pd.DataFrame(donnees_initiales).set_index("Établissement")
+
+# Bouton de réinitialisation manuelle d'urgence (si besoin de vider le tableau en un clic)
+if st.sidebar.button("♻️ Réinitialiser tout le tableau à zéro"):
+    st.session_state.df_global = pd.DataFrame(donnees_initiales).set_index("Établissement")
+    st.sidebar.success("Le tableau a été vidé !")
 
 # 5. FORMULAIRE DE SAISIE
 st.header("📥 Saisie d'une nouvelle pesée")
@@ -54,7 +60,7 @@ with st.form("formulaire_pesee", clear_on_submit=True):
 if bouton_valider:
     total_etablissement = plastique + serviettes + alimentaire + fruits + pain
     
-    # On met à jour la ligne de l'établissement sélectionné dans notre mémoire de session
+    # Mise à jour de la ligne de l'établissement
     st.session_state.df_global.loc[etablissement] = [
         plastique, 
         serviettes, 
@@ -68,11 +74,11 @@ if bouton_valider:
 
 st.markdown("---")
 
-# 7. LE DEUXIÈME TABLEAU : RÉCAPITULATIF GLOBAL ET NON MODIFIABLE
+# 7. LE DEUXIÈME TABLEAU : RÉCAPITULATIF GLOBAL RÉINITIALISÉ
 st.header("📊 Tableau de bord général des établissements")
 st.write("Ce tableau compile les dernières données enregistrées. Il n'est modifiable que via le formulaire ci-dessus.")
 
-# On affiche le tableau stocké en mémoire (il est purement visuel et non modifiable par l'utilisateur)
+# Affichage du tableau de bord (qui repart à zéro)
 st.dataframe(st.session_state.df_global, use_container_width=True)
 
 st.markdown("---")
