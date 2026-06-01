@@ -1,11 +1,12 @@
 import streamlit as st
+import pandas as pd
 
-# 1. CONFIGURATION DE LA PAGE (Simple et propre)
-st.set_page_config(page_title="Formulaire de Saisie - Cantine", page_icon="📝", layout="centered")
+# 1. CONFIGURATION DE LA PAGE
+st.set_page_config(page_title="Formulaire & Récapitulatif - Cantine", page_icon="📝", layout="centered")
 
 # 2. TITRE PRINCIPAL
-st.title("📝 Formulaire de Saisie des Consommations")
-st.write("Remplissez les champs ci-dessous pour enregistrer les pesées du jour.")
+st.title("📝 Saisie et Récapitulatif Global des Déchets")
+st.write("Enregistrez les pesées pour mettre à jour automatiquement le grand tableau de bord.")
 
 st.markdown("---")
 
@@ -18,48 +19,63 @@ liste_etablissements = [
     "école Jules Ferry", "école du grillon", "école curie"
 ]
 
-# 4. CRÉATION DU FORMULAIRE DE SAISIE
+# 4. INITIALISATION DE LA MÉMOIRE DE SESSION (Le grand tableau global)
+# Si l'application vient de démarrer, on crée un tableau vide avec tous les établissements à 0
+if "df_global" not in st.session_state:
+    donnees_initiales = {
+        "Établissement": liste_etablissements,
+        "Emballages plastiques (kg)": [0.0] * len(liste_etablissements),
+        "Serviettes en papier (kg)": [0.0] * len(liste_etablissements),
+        "Déchets alimentaires (kg)": [0.0] * len(liste_etablissements),
+        "Fruits entamés (kg)": [0.0] * len(liste_etablissements),
+        "Le pain (kg)": [0.0] * len(liste_etablissements),
+        "TOTAL (kg)": [0.0] * len(liste_etablissements)
+    }
+    st.session_state.df_global = pd.DataFrame(donnees_initiales).set_index("Établissement")
+
+# 5. FORMULAIRE DE SAISIE
+st.header("📥 Saisie d'une nouvelle pesée")
 with st.form("formulaire_pesee", clear_on_submit=True):
     
-    st.subheader("🏫 Choix de l'établissement")
-    etablissement = st.selectbox("Sélectionnez votre établissement :", liste_etablissements)
+    etablissement = st.selectbox("Sélectionnez l'établissement concerné :", liste_etablissements)
     
-    st.markdown("---")
-    st.subheader("⚖️ Quantités consommées / jetées (en kg)")
+    col1, col2 = st.columns(2)
+    with col1:
+        plastique = st.number_input("1. Emballages plastiques (kg)", min_value=0.0, step=0.1, format="%.2f")
+        serviettes = st.number_input("2. Les serviettes en papier (kg)", min_value=0.0, step=0.1, format="%.2f")
+        alimentaire = st.number_input("3. Les déchets alimentaires (kg)", min_value=0.0, step=0.1, format="%.2f")
+    with col2:
+        fruits = st.number_input("4. Les fruits entamés (kg)", min_value=0.0, step=0.1, format="%.2f")
+        pain = st.number_input("5. Le pain (kg)", min_value=0.0, step=0.1, format="%.2f")
     
-    # Les 5 poubelles demandées avec des cases pour taper les chiffres
-    plastique = st.number_input("1. Emballages plastiques (kg)", min_value=0.0, step=0.1, format="%.2f")
-    serviettes = st.number_input("2. Les serviettes en papier (kg)", min_value=0.0, step=0.1, format="%.2f")
-    alimentaire = st.number_input("3. Les déchets alimentaires (kg)", min_value=0.0, step=0.1, format="%.2f")
-    fruits = st.number_input("4. Les fruits entamés (kg)", min_value=0.0, step=0.1, format="%.2f")
-    pain = st.number_input("5. Le pain (kg)", min_value=0.0, step=0.1, format="%.2f")
-    
-    st.markdown("---")
-    
-    # Bouton de validation à l'intérieur du formulaire
-    bouton_valider = st.form_submit_button("💾 Valider et enregistrer la pesée")
+    bouton_valider = st.form_submit_button("💾 Enregistrer cette pesée")
 
-# 5. TRAITEMENT DES DONNÉES APRÈS CLIC
+# 6. ENREGISTREMENT ET CALCULS LORS DU CLIC
 if bouton_valider:
-    # Calcul du total global
-    total_general = plastique + serviettes + alimentaire + fruits + pain
+    total_etablissement = plastique + serviettes + alimentaire + fruits + pain
     
-    # Message de succès vert avec le récapitulatif
-    st.success(f"✅ Données enregistrées avec succès pour l'établissement : **{etablissement}** !")
+    # On met à jour la ligne de l'établissement sélectionné dans notre mémoire de session
+    st.session_state.df_global.loc[etablissement] = [
+        plastique, 
+        serviettes, 
+        alimentaire, 
+        fruits, 
+        pain, 
+        total_etablissement
+    ]
     
-    # Affichage du résumé sous le formulaire
-    st.info(f"""
-    **Récapitulatif de la saisie :**
-    * Emballages plastiques : {plastique:.2f} kg
-    * Serviettes en papier : {serviettes:.2f} kg
-    * Déchets alimentaires : {alimentaire:.2f} kg
-    * Fruits entamés : {fruits:.2f} kg
-    * Le pain : {pain:.2f} kg
-    * **TOTAL GÉNÉRAL : {total_general:.2f} kg**
-    """)
+    st.success(f"✅ Pesée mise à jour avec succès pour : **{etablissement}** (Total : {total_etablissement:.2f} kg)")
 
 st.markdown("---")
 
-# 6. LIEN VERS LE GOOGLE SHEETS
-st.write("🔗 Pour consulter l'historique complet des saisies :")
-st.link_button("📂 Ouvrir le tableau Google Sheets", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
+# 7. LE DEUXIÈME TABLEAU : RÉCAPITULATIF GLOBAL ET NON MODIFIABLE
+st.header("📊 Tableau de bord général des établissements")
+st.write("Ce tableau compile les dernières données enregistrées. Il n'est modifiable que via le formulaire ci-dessus.")
+
+# On affiche le tableau stocké en mémoire (il est purement visuel et non modifiable par l'utilisateur)
+st.dataframe(st.session_state.df_global, use_container_width=True)
+
+st.markdown("---")
+
+# 8. LIEN GOOGLE SHEETS
+st.link_button("📂 Ouvrir le fichier Google Sheets complet", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
