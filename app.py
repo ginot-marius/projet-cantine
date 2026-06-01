@@ -3,55 +3,48 @@ import streamlit as st
 # 1. CONFIGURATION DE LA PAGE
 st.set_page_config(page_title="Suivi Cantine - EPLE", page_icon="🥗", layout="centered")
 
-# 2. PERSONNALISATION VISUELLE (CSS EN LIGNE)
+# 2. STYLE CSS POUR LE FOND ET LES TABLEAUX
 st.markdown("""
     <style>
-    /* Image de fond : Restaurant scolaire / Cantine */
+    /* Image de fond : Vraie cantine scolaire */
     .stApp {
-        background-image: url("https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1920");
+        background-image: url("https://images.unsplash.com/photo-1568454537842-d933259bb258?q=80&w=1920");
         background-size: cover;
         background-attachment: fixed;
         background-position: center;
     }
 
-    /* Bloc principal ultra-lisible et opaque pour les textes et tableaux */
+    /* Boîte blanche opaque pour que les textes ressortent parfaitement */
     .main-box {
         background-color: #FFFFFF !important;
-        padding: 35px;
+        padding: 25px;
         border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        margin-bottom: 25px;
-        border: 2px solid #E0E0E0;
-    }
-
-    /* Force le texte standard en noir foncé pour un contraste maximum */
-    .big-text {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        margin-bottom: 20px;
         color: #111111 !important;
-        font-size: 16px;
-        line-height: 1.6;
     }
 
-    /* Titres principaux très visibles */
+    /* Style du grand titre */
     h1 {
         color: #1E4620 !important;
-        background-color: rgba(255, 255, 255, 0.95);
+        background-color: #FFFFFF;
         padding: 15px;
         border-radius: 10px;
         text-align: center;
         box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
     
-    h2, h3 {
+    h2 {
         color: #1E4620 !important;
         font-weight: bold !important;
+        margin-top: 0px !important;
     }
 
-    /* Application d'un fond blanc pur et de bordures nettes sur le tableau */
+    /* Style du tableau pour un contraste maximal */
     .stTable, table {
         background-color: #FFFFFF !important;
         color: #111111 !important;
         border: 2px solid #1E4620 !important;
-        border-collapse: collapse;
         width: 100%;
     }
     
@@ -62,10 +55,8 @@ st.markdown("""
     }
     
     td {
-        border: 1px solid #E0E0E0 !important;
-        padding: 10px !important;
-        font-size: 15px !important;
         font-weight: 600 !important;
+        padding: 10px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -73,17 +64,7 @@ st.markdown("""
 # 3. CONTENU DE L'APPLICATION
 st.title("🥗 Grand Suivi des Déchets - CDSG")
 
-# Premier bloc de texte
-st.markdown("""
-    <div class="main-box">
-        <p class="big-text">
-            Cette application permet de visualiser l'impact écologique de nos établissements du projet <b>EPLE bas carbone</b>. 
-            Sélectionnez un établissement ci-dessous pour afficher le détail de ses pesées.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-# Données des établissements
+# Liste des données
 donnees_etablissements = {
     "COLLEGE J. GIONO": {"plastique": 12.4, "serviettes": 4.2, "alimentaire": 35.8, "fruits": 8.5, "pain": 14.0},
     "LYCEE DE L'ARC": {"plastique": 22.1, "serviettes": 9.5, "alimentaire": 64.0, "fruits": 15.2, "pain": 28.3},
@@ -106,17 +87,18 @@ donnees_etablissements = {
     "école curie": {"plastique": 7.5, "serviettes": 2.8, "alimentaire": 21.3, "fruits": 5.1, "pain": 8.9}
 }
 
-# Bloc Sélection de l'établissement
+# Bloc de sélection de l'établissement (sans bulle vide en dessous)
 st.markdown('<div class="main-box">', unsafe_allow_html=True)
-st.header("🏫 Établissement")
+st.header("🏫 Sélection de l'établissement")
 liste = list(donnees_etablissements.keys())
-choix = st.selectbox("Choisir dans la liste :", liste)
+choix = st.selectbox("Choisissez un établissement dans la liste :", liste)
 st.markdown('</div>', unsafe_allow_html=True)
 
+# Calculs
 infos = donnees_etablissements[choix]
 total = infos["plastique"] + infos["serviettes"] + infos["alimentaire"] + infos["fruits"] + infos["pain"]
 
-# Bloc Résultats et Tableau
+# Bloc d'affichage du Tableau
 st.markdown('<div class="main-box">', unsafe_allow_html=True)
 st.header(f"📋 Résultats pour {choix}")
 
@@ -142,12 +124,5 @@ tableau = {
 st.table(tableau)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Bloc Lien Externe
-st.markdown("""
-    <div class="main-box">
-        <h3>📖 Accès aux données globales</h3>
-        <p class="big-text">Pour consulter ou modifier les feuilles de calcul d'origine :</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.link_button("📂 Ouvrir le tableau Google Sheets", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
+# Bouton d'accès au Google Sheets tout en bas
+st.link_button("📂 Ouvrir le tableau Google Sheets complet", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
