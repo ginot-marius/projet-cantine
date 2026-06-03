@@ -1,16 +1,16 @@
 import streamlit as st
 import pandas as pd
+import os
 
 # 1. CONFIGURATION DE LA PAGE
-st.set_page_config(page_title="Formulaire & Récapitulatif - Cantine", page_icon="📝", layout="centered")
+st.set_page_config(page_title="Saisie & Sauvegarde Déchets", page_icon="📝", layout="centered")
 
-# 2. TITRE PRINCIPAL
-st.title("📝 Saisie et Récapitulatif Global des Déchets")
-st.write("Enregistrez les pesées pour mettre à jour automatiquement le grand tableau de bord.")
+st.title("📝 Saisie et Sauvegarde des Pesées")
+st.write("Les données sont sauvegardées automatiquement dans l'application et ne disparaissent pas.")
 
 st.markdown("---")
 
-# 3. LISTE DES 21 ÉTABLISSEMENTS
+# 2. LISTE OFFICIELLE DES 19 ÉTABLISSEMENTS DE TON TABLEAU
 liste_etablissements = [
     "COLLEGE J. GIONO", "LYCEE DE L'ARC", "COLLEGE ARAUSIO", "LP ARGENSOL", 
     "COLLEGE B. HENDRICKS", "LP A. BRIAND", "LYCEE VITICOLE", "ENSEMBLE SCOLAIRE SAINT LOUIS", 
@@ -19,31 +19,36 @@ liste_etablissements = [
     "école Jules Ferry", "école du grillon", "école curie"
 ]
 
-# 4. RÉINITIALISATION ET INITIALISATION DU TABLEAU GLOBAL (Tout est remis à 0)
-# Cette structure crée un tableau propre et vierge avec des valeurs à 0.00
-donnees_initiales = {
-    "Établissement": liste_etablissements,
-    "Emballages plastiques (kg)": [0.0] * len(liste_etablissements),
-    "Serviettes en papier (kg)": [0.0] * len(liste_etablissements),
-    "Déchets alimentaires (kg)": [0.0] * len(liste_etablissements),
-    "Fruits entamés (kg)": [0.0] * len(liste_etablissements),
-    "Le pain (kg)": [0.0] * len(liste_etablissements),
-    "TOTAL (kg)": [0.0] * len(liste_etablissements)
-}
+# Nom du fichier de sauvegarde local
+FICHIER_SAUVEGARDE = "sauvegarde_dechets.csv"
 
-if "df_global" not in st.session_state:
-    st.session_state.df_global = pd.DataFrame(donnees_initiales).set_index("Établissement")
+# 3. CHARGEMENT OU INITIALISATION DU FICHIER DE SAUVEGARDE
+if os.path.exists(FICHIER_SAUVEGARDE):
+    # Si le fichier existe déjà, on le lit
+    df_global = pd.read_csv(FICHIER_SAUVEGARDE, index_col="Établissement")
+    # On s'assure que tous les établissements sont présents (au cas où)
+    for etab in liste_etablissements:
+        if etab not in df_global.index:
+            df_global.loc[etab] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+else:
+    # Sinon, on crée un tableau tout neuf à 0
+    donnees_initiales = {
+        "Établissement": liste_etablissements,
+        "Emballages plastiques (kg)": [0.0] * len(liste_etablissements),
+        "Serviettes en papier (kg)": [0.0] * len(liste_etablissements),
+        "Déchets alimentaires (kg)": [0.0] * len(liste_etablissements),
+        "Fruits entamés (kg)": [0.0] * len(liste_etablissements),
+        "Le pain (kg)": [0.0] * len(liste_etablissements),
+        "TOTAL (kg)": [0.0] * len(liste_etablissements)
+    }
+    df_global = pd.DataFrame(donnees_initiales).set_index("Établissement")
+    df_global.to_csv(FICHIER_SAUVEGARDE)
 
-# Bouton de réinitialisation manuelle d'urgence (si besoin de vider le tableau en un clic)
-if st.sidebar.button("♻️ Réinitialiser tout le tableau à zéro"):
-    st.session_state.df_global = pd.DataFrame(donnees_initiales).set_index("Établissement")
-    st.sidebar.success("Le tableau a été vidé !")
-
-# 5. FORMULAIRE DE SAISIE
-st.header("📥 Saisie d'une nouvelle pesée")
+# 4. FORMULAIRE DE SAISIE
+st.header("📥 Enregistrer une nouvelle pesée")
 with st.form("formulaire_pesee", clear_on_submit=True):
     
-    etablissement = st.selectbox("Sélectionnez l'établissement concerné :", liste_etablissements)
+    etablissement = st.selectbox("Sélectionnez l'établissement :", liste_etablissements)
     
     col1, col2 = st.columns(2)
     with col1:
@@ -54,14 +59,14 @@ with st.form("formulaire_pesee", clear_on_submit=True):
         fruits = st.number_input("4. Les fruits entamés (kg)", min_value=0.0, step=0.1, format="%.2f")
         pain = st.number_input("5. Le pain (kg)", min_value=0.0, step=0.1, format="%.2f")
     
-    bouton_valider = st.form_submit_button("💾 Enregistrer cette pesée")
+    bouton_valider = st.form_submit_button("💾 Enregistrer et Sauvegarder")
 
-# 6. ENREGISTREMENT ET CALCULS LORS DU CLIC
+# 5. ACTION LORS DU CLIC : SAUVEGARDE SUR LE DISQUE
 if bouton_valider:
     total_etablissement = plastique + serviettes + alimentaire + fruits + pain
     
-    # Mise à jour de la ligne de l'établissement
-    st.session_state.df_global.loc[etablissement] = [
+    # On met à jour la ligne dans notre tableau
+    df_global.loc[etablissement] = [
         plastique, 
         serviettes, 
         alimentaire, 
@@ -70,18 +75,22 @@ if bouton_valider:
         total_etablissement
     ]
     
-    st.success(f"✅ Pesée mise à jour avec succès pour : **{etablissement}** (Total : {total_etablissement:.2f} kg)")
+    # On écrase le fichier CSV pour sauvegarder physiquement les données
+    df_global.to_csv(FICHIER_SAUVEGARDE)
+    
+    st.success(f"✅ Données sauvegardées pour : **{etablissement}** !")
+    st.rerun()
 
 st.markdown("---")
 
-# 7. LE DEUXIÈME TABLEAU : RÉCAPITULATIF GLOBAL RÉINITIALISÉ
+# 6. LE DEUXIÈME TABLEAU : RÉCAPITULATIF PERMANENT
 st.header("📊 Tableau de bord général des établissements")
-st.write("Ce tableau compile les dernières données enregistrées. Il n'est modifiable que via le formulaire ci-dessus.")
+st.write("Ce tableau conserve en mémoire toutes les données saisies.")
 
-# Affichage du tableau de bord (qui repart à zéro)
-st.dataframe(st.session_state.df_global, use_container_width=True)
+# Affichage du tableau
+st.dataframe(df_global, use_container_width=True)
 
 st.markdown("---")
 
-# 8. LIEN GOOGLE SHEETS
-st.link_button("📂 Ouvrir le fichier Google Sheets complet", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
+# 7. LIEN SIMPLE VERS TON GOOGLE SHEETS (Pour consultation uniquement)
+st.link_button("📂 Ouvrir le fichier Google Sheets d'origine", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
