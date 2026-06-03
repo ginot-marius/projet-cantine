@@ -76,12 +76,22 @@ st.dataframe(df_global, use_container_width=True)
 
 st.markdown("---")
 
-# 6. BOUTON DE RÉINITIALISATION GÉNÉRALE
-st.subheader("⚠️ Zone de réinitialisation")
-if st.button("♻️ Remettre TOUT le tableau à zéro (Effacer les faux tests)"):
-    df_global = generer_tableau_vierge()
-    st.success("🔄 Tout le tableau a été réinitialisé avec succès ! Toutes les valeurs sont à 0.")
-    st.rerun()
+# 6. ZONE DE RÉINITIALISATION SÉCURISÉE
+st.subheader("⚠️ Zone d'administration (Réservée)")
+st.write("Pour réinitialiser le tableau, entrez le code secret ci-dessous :")
+
+# Case pour taper le code secret (les caractères seront masqués)
+code_saisi = st.text_input("Entrez le code de sécurité :", type="password")
+
+if st.button("♻️ Confirmer la réinitialisation générale"):
+    if code_saisi == "CDSG":
+        df_global = generer_tableau_vierge()
+        st.success("🔄 Tout le tableau a été remis à zéro avec succès !")
+        st.rerun()
+    elif code_saisi == "":
+        st.warning("Veuillez d'abord saisir le code secret.")
+    else:
+        st.error("❌ Code incorrect ! Action refusée.")
 
 st.markdown("---")
 st.link_button("📂 Ouvrir le fichier Google Sheets d'origine", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
