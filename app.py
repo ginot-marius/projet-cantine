@@ -1,12 +1,13 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 import os
 
 # 1. CONFIGURATION DE LA PAGE
-st.set_page_config(page_title="Saisie & Sauvegarde Déchets", page_icon="📝", layout="centered")
+st.set_page_config(page_title="Saisie & Graphique Déchets", page_icon="📝", layout="centered")
 
-st.title("📝 Saisie et Sauvegarde des Pesées")
-st.write("Les données sont sauvegardées automatiquement dans l'application et ne disparaissent pas.")
+st.title("📝 Saisie et Répartition Globale des Déchets")
+st.write("Enregistrez les pesées pour mettre à jour le graphique circulaire en temps réel.")
 
 st.markdown("---")
 
@@ -70,22 +71,89 @@ if bouton_valider:
 
 st.markdown("---")
 
-# 5. LE DEUXIÈME TABLEAU : RÉCAPITULATIF PERMANENT
-st.header("📊 Tableau de bord général des établissements")
-st.dataframe(df_global, use_container_width=True)
+# 5. LE NOUVEAU GRAPHIQUE CIRCULAIRE (À la place du grand tableau)
+st.header("📊 Répartition globale des poubelles (Tous établissements)")
+
+# Calcul du total général de chaque poubelle pour le graphique
+somme_plastique = df_global["Emballages plastiques (kg)"].sum()
+somme_serviettes = df_global["Serviettes en papier (kg)"].sum()
+somme_alimentaire = df_global["Déchets alimentaires (kg)"].sum()
+somme_fruits = df_global["Fruits entamés (kg)"].sum()
+somme_pain = df_global["Le pain (kg)"].sum()
+
+total_general_tous_dechets = somme_plastique + somme_serviettes + somme_alimentaire + somme_fruits + somme_pain
+
+# Sécurité : Si le tableau est totalement vide (0 kg partout), on n'affiche pas un graphique blanc d'erreur
+if total_general_tous_dechets == 0:
+    st.info("💡 Le graphique circulaire s'affichera ici dès qu'une première pesée sera enregistrée dans le formulaire.")
+else:
+    # Préparation des données du graphique
+    categories = [
+        "Emballages plastiques", 
+        "Serviettes en papier", 
+        "Déchets alimentaires", 
+        "Fruits entamés", 
+        "Le pain"
+    ]
+    valeurs = [somme_plastique, somme_serviettes, somme_alimentaire, somme_fruits, somme_pain]
+    
+    # Choix des couleurs demandées pour chaque poubelle
+    couleurs = [
+        "#5499C7",  # Bleu pour le plastique
+        "#A6ACAF",  # Gris pour les serviettes
+        "#52BE80",  # Vert pour les déchets alimentaires
+        "#F4D03F",  # Jaune/Orange pour les fruits
+        "#DC7633"   # Marron/Pain cuit pour le pain
+    ]
+    
+    # Création de la figure Matplotlib
+    fig, ax = plt.subplots(figsize=(6, 6))
+    
+    # Génération du camembert
+    wedges, texts, autotexts = ax.pie(
+        valeurs, 
+        labels=categories, 
+        autopct='%1.1f%%', 
+        startangle=90, 
+        colors=couleurs,
+        textprops=dict(color="black", fontweight="bold")
+    )
+    
+    # Style des petits textes de pourcentages à l'intérieur
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontsize(10)
+
+    ax.axis('equal')  # Force le graphique à être un cercle parfait
+    
+    # Affichage du graphique dans Streamlit
+    st.pyplot(fig)
+    
+    # Petit récapitulatif textuel des kilogrammes juste en dessous
+    st.write(f"**Quantités totales collectées (Somme de tous les établissements) :**")
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        st.write(f"🔵 Plastiques : **{somme_plastique:.2f} kg**")
+        st.write(f"⚪ Serviettes : **{somme_serviettes:.2f} kg**")
+    with col_b:
+        st.write(f"🟢 Alimentaire : **{somme_alimentaire:.2f} kg**")
+        st.write(f"🟡 Fruits : **{somme_fruits:.2f} kg**")
+    with col_c:
+        st.write(f"🟤 Pain : **{somme_pain:.2f} kg**")
+        st.write(f"📊 **TOTAL GLOBAL : {total_general_tous_dechets:.2f} kg**")
 
 st.markdown("---")
 
-# 6. ZONE DE RÉINITIALISATION SÉCURISÉE
+# 6. ZONE DE RÉINITIALISATION SÉCURISÉE (CODE : CDSG)
 st.subheader("⚠️ Zone d'administration (Réservée)")
-st.write("Pour réinitialiser le tableau, entrez le code secret ci-dessous :")
+st.write("Pour remettre le graphique et les données à zéro, entrez le code secret :")
 
 code_saisi = st.text_input("Entrez le code de sécurité :", type="password")
 
 if st.button("♻️ Confirmer la réinitialisation générale"):
     if code_saisi == "CDSG":
         df_global = generer_tableau_vierge()
-        st.success("🔄 Tout le tableau a été remis à zéro avec succès !")
+        st.success("🔄 Tout a été remis à zéro avec succès ! Le graphique est réinitialisé.")
         st.rerun()
     elif code_saisi == "":
         st.warning("Veuillez d'abord saisir le code secret.")
