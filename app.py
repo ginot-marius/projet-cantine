@@ -80,7 +80,6 @@ st.markdown("---")
 st.subheader("⚠️ Zone d'administration (Réservée)")
 st.write("Pour réinitialiser le tableau, entrez le code secret ci-dessous :")
 
-# Case pour taper le code secret (les caractères seront masqués)
 code_saisi = st.text_input("Entrez le code de sécurité :", type="password")
 
 if st.button("♻️ Confirmer la réinitialisation générale"):
@@ -92,6 +91,3 @@ if st.button("♻️ Confirmer la réinitialisation générale"):
         st.warning("Veuillez d'abord saisir le code secret.")
     else:
         st.error("❌ Code incorrect ! Action refusée.")
-
-st.markdown("---")
-st.link_button("📂 Ouvrir le fichier Google Sheets d'origine", "https://docs.google.com/spreadsheets/d/12fo8cluTH5DmI1dZJh2P_iJaso-NmplnEvxcyb5pS0M/edit?gid=169103083#gid=169103083")
